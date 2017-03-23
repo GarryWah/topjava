@@ -28,10 +28,10 @@ public class UserMealsUtil {
                 new UserMeal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510)
 
         );
-//        long startTime = System.nanoTime() / 1000000;
-//        System.out.println(getFilteredWithExceeded(mealList, LocalTime.of(7, 0), LocalTime.of(20, 0), 2000));
-//        long stopTime = System.nanoTime() / 1000000;
-//        System.out.println(stopTime - startTime);
+        long startTime = System.nanoTime() / 1000000;
+        System.out.println(getFilteredWithExceeded(mealList, LocalTime.of(7, 0), LocalTime.of(13, 0), 2000));
+        long stopTime = System.nanoTime() / 1000000;
+        System.out.println(stopTime - startTime);
 //        .toLocalDate();
 //        .toLocalTime();
     }
@@ -43,12 +43,11 @@ public class UserMealsUtil {
         Map<LocalDate, Integer> sum = mealList.stream().collect(
                 Collectors.groupingBy((t) -> t.getDateTime().toLocalDate(), Collectors.summingInt(UserMeal::getCalories)));
         userMeals = mealList.stream()
+                .filter(userMeal -> TimeUtil.isBetween(userMeal.getDateTime().toLocalTime(), startTime, endTime))
                 .map(userMeal ->
                         sum.getOrDefault(userMeal.getDateTime().toLocalDate(), 0) > caloriesPerDay ?
                                 new UserMealWithExceed(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), true) :
                                 new UserMealWithExceed(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), false))
-
-                .filter(userMeal -> TimeUtil.isBetween(userMeal.getDateTime().toLocalTime(), startTime, endTime))
                 .collect(Collectors.toList());
 
         return userMeals;

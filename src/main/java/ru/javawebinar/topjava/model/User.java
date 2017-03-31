@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.model;
 
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
@@ -17,6 +18,8 @@ public class User extends NamedEntity {
     private Date registered = new Date();
 
     private Set<Role> roles;
+
+    private List<Meal> meals;
 
     private int caloriesPerDay = DEFAULT_CALORIES_PER_DAY;
 
@@ -78,6 +81,14 @@ public class User extends NamedEntity {
 
     public String getPassword() {
         return password;
+    }
+
+    public List<Meal> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Meal> meals) {
+        this.meals = meals;
     }
 
     @Override

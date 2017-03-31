@@ -8,8 +8,7 @@ import java.time.LocalTime;
  * GKislin
  * 11.01.2015.
  */
-public class Meal {
-    private Integer id;
+public class Meal extends BaseEntity {
 
     private final LocalDateTime dateTime;
 
@@ -17,23 +16,22 @@ public class Meal {
 
     private final int calories;
 
-    public Meal(LocalDateTime dateTime, String description, int calories) {
-        this(null, dateTime, description, calories);
-    }
+    private final User user;
 
-    public Meal(Integer id, LocalDateTime dateTime, String description, int calories) {
-        this.id = id;
+    public Meal(Integer id, LocalDateTime dateTime, String description, int calories, User user) {
+        super(id);
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
+        this.user = user;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public Meal(LocalDateTime dateTime, String description, int calories, User user) {
+        super(null);
+        this.dateTime = dateTime;
+        this.description = description;
+        this.calories = calories;
+        this.user = user;
     }
 
     public LocalDateTime getDateTime() {
@@ -58,6 +56,10 @@ public class Meal {
 
     public boolean isNew() {
         return id == null;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override

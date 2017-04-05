@@ -15,6 +15,7 @@ public class DateTimeUtil {
         return ld.compareTo(start) >= 0 && ld.compareTo(end) <= 0;
     }
 
+
     public static String toString(LocalDateTime ldt) {
         return ldt == null ? "" : ldt.format(DATE_TIME_FORMATTER);
     }

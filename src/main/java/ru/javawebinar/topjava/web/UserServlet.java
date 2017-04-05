@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
+import ru.javawebinar.topjava.AuthorizedUser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,7 +21,17 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id=Integer.parseInt(request.getParameter("id"));
+        LOG.debug("Aiuthorized user with id" + id);
+        AuthorizedUser.setId(id);
         LOG.debug("forward to users");
-        request.getRequestDispatcher("/users.jsp").forward(request, response);
+                request.getRequestDispatcher("/users.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOG.debug("id doPost");
+
+        doGet(req, resp);
     }
 }

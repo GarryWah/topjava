@@ -35,7 +35,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     @Override
-    public Meal  save(Meal meal, int userId) {
+    public Meal save(Meal meal, int userId) {
 
         if (!checkUser(meal, userId)) return meal;
         if (meal.isNew()) {

@@ -22,7 +22,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int id=Integer.parseInt(request.getParameter("id"));
-        LOG.debug("Aiuthorized user with id" + id);
+        LOG.debug("Authorized user with id" + id);
         AuthorizedUser.setId(id);
         LOG.debug("forward to users");
                 request.getRequestDispatcher("/users.jsp").forward(request, response);

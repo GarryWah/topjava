@@ -97,6 +97,11 @@ public class MealServiceTest {
         matcher.assertCollectionEquals(Arrays.asList(MEAL_9, MEAL_8, MEAL_7, MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2,MEAL_1), all);
     }
 
+//    @Test(expected = NotFoundException.class)
+//    public void testGetAllForOther() throws Exception {
+//        Collection<Meal> all = mealService.getAll(ADMIN_ID);
+//        matcher.assertCollectionEquals(MEALS, all);
+//    }
 
     @Test
     public void testUpdate() throws Exception {

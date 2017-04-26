@@ -1,0 +1,114 @@
+package ru.javawebinar.topjava.service;
+
+import org.junit.AfterClass;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Stopwatch;
+import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
+import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
+
+/**
+ * Created by Admin on 4/22/2017.
+ */
+
+public abstract class MealServiceTestGeneral extends ServiceTest {
+    private static final Logger LOG = LoggerFactory.getLogger(MealServiceTestGeneral.class);
+    private static StringBuilder results = new StringBuilder();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Rule
+    // http://stackoverflow.com/questions/14892125/what-is-the-best-practice-to-determine-the-execution-time-of-the-bussiness-relev
+    public Stopwatch stopwatch = new Stopwatch() {
+        @Override
+        protected void finished(long nanos, Description description) {
+            String result = String.format("%-25s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            results.append(result).append('\n');
+            LOG.info(result + " ms\n");
+        }
+    };
+
+    @AfterClass
+    public static void printResult() {
+        LOG.info("\n---------------------------------" +
+                "\nTest                 Duration, ms" +
+                "\n---------------------------------\n" +
+                results +
+                "---------------------------------\n");
+    }
+
+    @Autowired
+    private MealService service;
+
+
+    @Override
+    public void testSave() throws Exception {
+        Meal created = getCreated();
+        service.save(created, USER_ID);
+        MATCHER.assertCollectionEquals(Arrays.asList(created, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1), service.getAll(USER_ID));
+
+    }
+
+    @Override
+    public void testDelete() throws Exception {
+        service.delete(MEAL1_ID, USER_ID);
+        MATCHER.assertCollectionEquals(Arrays.asList(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2), service.getAll(USER_ID));
+    }
+
+    @Override
+    public void testNotFoundDelete() throws Exception {
+//        thrown.expect(NotFoundException.class);
+        service.delete(MEAL1_ID, 1);
+    }
+
+    @Override
+    public void testGet() throws Exception {
+        Meal actual = service.get(ADMIN_MEAL_ID, ADMIN_ID);
+        MATCHER.assertEquals(ADMIN_MEAL1, actual);
+    }
+
+    @Override
+    public void testGetNotFound() throws Exception {
+//        thrown.expect(NotFoundException.class);
+        service.get(MEAL1_ID, ADMIN_ID);
+    }
+
+    @Override
+    public void testUpdate() throws Exception {
+        Meal updated = getUpdated();
+        service.update(updated, USER_ID);
+        MATCHER.assertEquals(updated, service.get(MEAL1_ID, USER_ID));
+    }
+
+    @Override
+    public void testGetAll() throws Exception {
+        MATCHER.assertCollectionEquals(MEALS, service.getAll(USER_ID));
+    }
+
+    public void testUpdateNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
+        thrown.expectMessage("Not found entity with id=" + MEAL1_ID);
+        service.update(MEAL1, ADMIN_ID);
+    }
+
+    public void testGetBetween() throws Exception {
+        MATCHER.assertCollectionEquals(Arrays.asList(MEAL3, MEAL2, MEAL1),
+                service.getBetweenDates(
+                        LocalDate.of(2015, Month.MAY, 30),
+                        LocalDate.of(2015, Month.MAY, 30), USER_ID));
+    }
+}

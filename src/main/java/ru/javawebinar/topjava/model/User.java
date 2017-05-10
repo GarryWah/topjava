@@ -9,10 +9,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 
@@ -25,7 +22,7 @@ import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 @Entity
 //@NamedEntityGraph(name = User.GRAPH_WITH_MEALS, attributeNodes = {@NamedAttributeNode("meals")})
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email", name = "users_unique_email_idx")})
-public class User extends NamedEntity {
+public class User extends NamedEntity implements Comparable<User> {
 
 //    public static final String GRAPH_WITH_MEALS = "User.withMeals";
 
@@ -56,7 +53,7 @@ public class User extends NamedEntity {
     @ElementCollection(fetch = FetchType.EAGER)
 //    @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size = 200)
-    private Set<Role> roles;
+    private Set<Role> roles=new HashSet<>();
 
     @Column(name = "calories_per_day", columnDefinition = "int default 2000")
     @Range(min = 10, max = 10000)
@@ -84,6 +81,7 @@ public class User extends NamedEntity {
         this.caloriesPerDay = caloriesPerDay;
         this.enabled = enabled;
         this.roles = roles;
+
     }
 
     public String getEmail() {
@@ -144,5 +142,12 @@ public class User extends NamedEntity {
                 ", roles=" + roles +
                 ", caloriesPerDay=" + caloriesPerDay +
                 '}';
+    }
+
+    @Override
+    public int compareTo(User o) {
+        if(this.getId()-o.getId()<0) return -1;
+        if(this.getId()-o.getId()>0) return 1;
+        return 0;
     }
 }

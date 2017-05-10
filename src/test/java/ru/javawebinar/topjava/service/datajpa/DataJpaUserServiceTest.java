@@ -17,6 +17,7 @@ public class DataJpaUserServiceTest extends AbstractUserServiceTest {
         User user = service.getWithMeals(USER_ID);
         MATCHER.assertEquals(USER, user);
         MealTestData.MATCHER.assertCollectionEquals(MealTestData.MEALS, user.getMeals());
+
     }
 
     @Test(expected = NotFoundException.class)

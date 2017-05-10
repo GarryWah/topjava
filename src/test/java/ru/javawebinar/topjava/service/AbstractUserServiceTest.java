@@ -10,9 +10,7 @@ import ru.javawebinar.topjava.repository.JpaUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static ru.javawebinar.topjava.UserTestData.*;
 
@@ -32,10 +30,17 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void testSave() throws Exception {
-        User newUser = new User(null, "New", "new@gmail.com", "newPass", 1555, false, Collections.singleton(Role.ROLE_USER));
+        HashSet<Role> roles = new HashSet<>();
+        roles.add(Role.ROLE_USER);
+        roles.add(Role.ROLE_ADMIN);
+        User newUser = new User(null, "New", "new@gmail.com", "newPass", 1555, false, roles);
         User created = service.save(newUser);
         newUser.setId(created.getId());
-        MATCHER.assertCollectionEquals(Arrays.asList(ADMIN, newUser, USER), service.getAll());
+        List<User> all = service.getAll();
+        List<User> users = Arrays.asList(ADMIN, newUser, USER);
+        Collections.sort(users);
+        Collections.sort(all);
+        MATCHER.assertCollectionEquals(users, all);
     }
 
     @Test(expected = DataAccessException.class)
@@ -68,7 +73,9 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     public void testGetByEmail() throws Exception {
         User user = service.getByEmail("user@yandex.ru");
-        MATCHER.assertEquals(USER, user);
+        User actual = service.get(USER_ID);
+//        MATCHER.assertEquals(USER, user);
+        MATCHER.assertEquals(actual, user);
     }
 
     @Test

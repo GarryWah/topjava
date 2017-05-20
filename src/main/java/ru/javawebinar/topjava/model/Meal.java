@@ -1,5 +1,7 @@
 package ru.javawebinar.topjava.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.NotBlank;
@@ -29,6 +31,9 @@ public class Meal extends BaseEntity {
 
     @Column(name = "date_time", nullable = false)
     @NotNull
+    @JsonDeserialize(using = ru.javawebinar.topjava.web.json.LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = ru.javawebinar.topjava.web.json.LocalDateTimeSerializer.class)
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)

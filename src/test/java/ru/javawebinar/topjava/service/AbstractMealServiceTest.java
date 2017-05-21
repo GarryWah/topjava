@@ -1,38 +1,25 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Assume;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 
+import static java.time.LocalDateTime.of;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
-@ContextConfiguration({
-        "classpath:spring/spring-app.xml",
-        "classpath:spring/spring-db.xml"
-})
-@RunWith(SpringJUnit4ClassRunner.class)
-@Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-public class MealServiceTest {
-
-    static {
-        SLF4JBridgeHandler.install();
-    }
+public abstract class AbstractMealServiceTest extends AbstractServiceTest {
 
     @Autowired
-    private MealService service;
+    protected MealService service;
 
     @Test
     public void testDelete() throws Exception {
@@ -40,8 +27,9 @@ public class MealServiceTest {
         MATCHER.assertCollectionEquals(Arrays.asList(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2), service.getAll(USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testDeleteNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.delete(MEAL1_ID, 1);
     }
 
@@ -58,8 +46,9 @@ public class MealServiceTest {
         MATCHER.assertEquals(ADMIN_MEAL1, actual);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testGetNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
@@ -70,8 +59,10 @@ public class MealServiceTest {
         MATCHER.assertEquals(updated, service.get(MEAL1_ID, USER_ID));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testUpdateNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
+        thrown.expectMessage("Not found entity with id=" + MEAL1_ID);
         service.update(MEAL1, ADMIN_ID);
     }
 
@@ -83,6 +74,17 @@ public class MealServiceTest {
     @Test
     public void testGetBetween() throws Exception {
         MATCHER.assertCollectionEquals(Arrays.asList(MEAL3, MEAL2, MEAL1),
-                service.getBetweenDates(LocalDate.of(2015, Month.MAY, 30), LocalDate.of(2015, Month.MAY, 30), USER_ID));
+                service.getBetweenDates(
+                        LocalDate.of(2015, Month.MAY, 30),
+                        LocalDate.of(2015, Month.MAY, 30), USER_ID));
+    }
+
+    @Test
+    public void testValidation() throws Exception {
+        Assume.assumeTrue(isJpaBased());
+        validateRootCause(() -> service.save(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "  ", 300), USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.save(new Meal(null, null, "Description", 300), USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.save(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 9), USER_ID), ConstraintViolationException.class);
+        validateRootCause(() -> service.save(new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Description", 5001), USER_ID), ConstraintViolationException.class);
     }
 }
